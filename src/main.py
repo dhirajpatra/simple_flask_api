@@ -16,10 +16,23 @@ with app.app_context():
 tasks = []
 
 # Endpoint to get all tasks
+# /tasks?sort=priority
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
-    tasks = Task.query.all()
-    serialized_tasks = [{'id': task.id, 'title': task.title, 'description': task.description, 'completed': task.completed} for task in tasks]
+    # Check if sorting by priority is requested
+    sort_by_priority = request.args.get('sort') == 'priority'
+    
+    # Retrieve tasks from the database
+    if sort_by_priority:
+        tasks = Task.query.order_by(Task.priority).all()  # Sort tasks by priority
+    else:
+        tasks = Task.query.all()
+
+    # Serialize tasks
+    serialized_tasks = [
+        {'id': task.id, 'title': task.title, 'description': task.description, 'completed': task.completed, 'priority': task.priority} 
+        for task in tasks
+    ]
     return jsonify({'tasks': serialized_tasks})
 
 # Endpoint to create a new task
