@@ -1,9 +1,13 @@
 # test_task_management.py
 
-from task import Task  # Import Task from its module
-from use_cases.task_management import TaskManagement
-from repositories.in_memory_task_repository import InMemoryTaskRepositor
+import sys
+sys.path.append('src')  # Add the 'src' directory to the Python path
 
+from use_cases.task_management import TaskManagement  # Update the import path
+from repositories.in_memory_task_repository import InMemoryTaskRepository  # Update the import path
+
+import pytest
+from entities.task import Task  # Update the import path
 
 
 @pytest.fixture
