@@ -1,7 +1,9 @@
-import pytest
-from entities.task import Task
+# test_task_management.py
+
+from task import Task  # Import Task from its module
 from use_cases.task_management import TaskManagement
-from repositories.in_memory_task_repository import InMemoryTaskRepository
+from repositories.in_memory_task_repository import InMemoryTaskRepositor
+
 
 
 @pytest.fixture
