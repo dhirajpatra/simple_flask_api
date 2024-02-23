@@ -1,9 +1,16 @@
 # main.py
+from interface_adapters.web.app import run_web_app
 from flask import Flask, jsonify, request
-from entities.task import Task
+from entities.task import Task, db
 
 # Initialize Flask app
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'  # Database URI
+db.init_app(app)  # Initialize db with Flask app
+
+# Initialize the database
+with app.app_context():
+    db.create_all()
 
 # Initialize empty list to store tasks
 tasks = []
@@ -11,40 +18,32 @@ tasks = []
 # Endpoint to get all tasks
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
-    return jsonify({'tasks': [task.__dict__ for task in tasks]})
+    tasks = Task.query.all()
+    serialized_tasks = [{'id': task.id, 'title': task.title, 'description': task.description, 'completed': task.completed} for task in tasks]
+    return jsonify({'tasks': serialized_tasks})
 
 # Endpoint to create a new task
 @app.route('/tasks', methods=['POST'])
 def create_task():
-    # Create task object from request JSON data
-    task_data = request.json
-    task = Task(
-        id=len(tasks) + 1,
-        title=task_data['title'],
-        description=task_data.get('description', ""),
-        is_completed=False
-    )
-    # Add task to the list
-    tasks.append(task)
-    # Return newly created task with status code 201 (Created)
-    return jsonify({'task': task.__dict__}), 201
+    data = request.json
+    new_task = Task(title=data['title'], description=data.get('description', ''), completed=data.get('completed', False))
+    db.session.add(new_task)
+    db.session.commit()
+    return jsonify({'task': {'id': new_task.id, 'title': new_task.title, 'description': new_task.description, 'completed': new_task.completed}}), 201
 
 # Endpoint to update an existing task
 @app.route('/tasks/<int:task_id>', methods=['PUT'])
 def update_task(task_id):
-    # Find the task with the given ID
-    task = next((task for task in tasks if task.id == task_id), None)
-    # If task not found, return error response with status code 404 (Not Found)
-    if task is None:
-        return jsonify({'error': 'Task not found'}), 404
-    # Update task properties from request JSON data, if provided
-    task_data = request.json
-    task.title = task_data.get('title', task.title)
-    task.description = task_data.get('description', task.description)
-    task.is_completed = task_data.get('completed', task.is_completed)
-    # Return updated task
-    return jsonify({'task': task.__dict__})
+    task = Task.query.get(task_id)
+    if task:
+        data = request.json
+        task.title = data.get('title', task.title)
+        task.description = data.get('description', task.description)
+        task.completed = data.get('completed', task.completed)
+        db.session.commit()
+        return jsonify({'task': {'id': task.id, 'title': task.title, 'description': task.description, 'completed': task.completed}})
+    return jsonify({'error': 'Task not found'}), 404
 
 # Entry point to run the Flask web application
 if __name__ == "__main__":
-    app.run(debug=True)
+    run_web_app()

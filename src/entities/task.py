@@ -1,4 +1,9 @@
 # task.py
+from flask_sqlalchemy import SQLAlchemy
+
+
+db = SQLAlchemy()
+
 class Task:
     """
     Represents a task in a todo list application.
@@ -15,13 +20,23 @@ class Task:
         Buy groceries
     """
 
-    def __init__(
-        self,
-        id: int,
-        title: str,
-        description: str,
-        is_completed: bool = False,
-    ):
+    # def __init__(
+    #     self,
+    #     id: int,
+    #     title: str,
+    #     description: str,
+    #     is_completed: bool = False,
+    # ):
+    #     self.id = id
+    #     self.title = title
+    #     self.description = description
+    #     self.is_completed = is_completed
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(255))
+    is_completed = db.Column(db.Boolean, default=False)
+
+    def __init__(self, id: int, title: str, description: str, is_completed: bool = False):
         self.id = id
         self.title = title
         self.description = description
