@@ -1,4 +1,4 @@
-# Software Architect Challenge: Todo List Application
+# Software Code Challenge: Todo List Application
 
 The Todo List Application is designed to help users manage their tasks efficiently. It allows users to keep track of their daily, weekly, or project-specific tasks in a simple yet effective manner. 
 The domain revolves around task management, focusing on the creation, listing, and updating of tasks to reflect their current status and details.
